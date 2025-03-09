@@ -58,6 +58,17 @@ public class MapGenerator : MonoBehaviour
                 }
             }
         }
+
+        // After generating the map, configure the background
+        BackgroundManager backgroundManager = FindAnyObjectByType<BackgroundManager>();
+        if (backgroundManager != null)
+        {
+            // Apply fixed scale and update camera bounds
+            backgroundManager.ApplyFixedScale();
+        }
+        
+        // Note: We don't need to set camera boundaries here anymore since 
+        // the background manager will do it after scaling the background
     }
     
     // New method to assign initial provinces to nations

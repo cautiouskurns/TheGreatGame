@@ -9,6 +9,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI playerGoldText;
     [SerializeField] private Button endTurnButton;
     [SerializeField] private Button collectResourcesButton;
+    [SerializeField] private Button zoomInButton;
+    [SerializeField] private Button zoomOutButton;
     
     private TurnManager turnManager;
     
@@ -35,6 +37,23 @@ public class UIManager : MonoBehaviour
             collectResourcesButton.onClick.AddListener(() => {
                 GameManager.Instance.CollectResources();
                 UpdateUI(turnManager.CurrentNation);
+            });
+        }
+        
+        // Set up zoom buttons
+        CameraController cameraController = FindAnyObjectByType<CameraController>();
+        
+        if (zoomInButton != null && cameraController != null)
+        {
+            zoomInButton.onClick.AddListener(() => {
+                cameraController.ZoomIn();
+            });
+        }
+        
+        if (zoomOutButton != null && cameraController != null)
+        {
+            zoomOutButton.onClick.AddListener(() => {
+                cameraController.ZoomOut();
             });
         }
         
