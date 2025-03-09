@@ -123,6 +123,17 @@ public class MapGenerator : MonoBehaviour
         
         // The remaining provinces in availableProvinces stay unowned
         Debug.Log($"Map generated with {provinceToAssign} provinces assigned to nations and {availableProvinces.Count} unowned provinces.");
+        
+        // After assigning provinces, redraw nation borders
+        NationBorderManager borderManager = FindAnyObjectByType<NationBorderManager>();
+        if (borderManager != null)
+        {
+            borderManager.RedrawAllNationBorders();
+        }
+        else
+        {
+            Debug.LogWarning("NationBorderManager not found. Nation borders will not be drawn.");
+        }
     }
     
     // Helper method to assign provinces in clusters

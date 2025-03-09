@@ -4,19 +4,33 @@ using UnityEngine;
 public class Province : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private Color neutralColor = Color.gray; // Default color for unowned provinces
+    [SerializeField] private Color provinceColor = new Color(0.4f, 0.8f, 0.4f); // Default green color for all provinces
     
     [Header("Border Settings")]
-    [SerializeField] private bool showBorder = true;
-    [SerializeField] private Color borderColor = new Color(0.2f, 0.2f, 0.2f, 1f); // Dark gray border
+    [SerializeField] private bool showProvinceBorder = true;
+    [SerializeField] private Color provinceBorderColor = new Color(0.2f, 0.2f, 0.2f, 0.8f); // Dark gray border
     [SerializeField] private float borderWidth = 0.05f; // Border width in world units
     
     private LineRenderer lineRenderer;
     
+    [Header("Ownership")]
+    [SerializeField] private Nation _ownerNation = null; // Will be visible in inspector
+    
     public int x { get; private set; }
     public int y { get; private set; }
-    public Nation ownerNation { get; private set; }
+    
+    // Property with custom getter/setter to update the serialized field
+    public Nation ownerNation 
+    { 
+        get { return _ownerNation; }
+        private set { _ownerNation = value; }
+    }
+    
     public int resources = 10; // Simple resource value for now
+    
+    // Event triggered when ownership changes
+    public delegate void OwnershipChanged(Province province, Nation oldOwner, Nation newOwner);
+    public static event OwnershipChanged OnOwnershipChanged;
     
     public void Initialize(int xPos, int yPos)
     {
@@ -26,25 +40,23 @@ public class Province : MonoBehaviour
         // Verify SpriteRenderer is assigned
         if (spriteRenderer == null)
         {
-            // Try to get it automatically if not assigned in inspector
             spriteRenderer = GetComponent<SpriteRenderer>();
-            
             if (spriteRenderer == null)
             {
                 Debug.LogError($"Province at ({x},{y}) couldn't find SpriteRenderer!");
             }
         }
         
-        // Set up the line renderer for borders if needed
-        if (showBorder)
+        // Set up the line renderer for province borders if needed
+        if (showProvinceBorder)
         {
-            SetupBorder();
+            SetupProvinceBorder();
         }
         
-        // Set initial color to neutral
+        // Set province color to green
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = neutralColor;
+            spriteRenderer.color = provinceColor;
             
             // Set the sorting layer and order to ensure it's above the background
             spriteRenderer.sortingLayerName = "Provinces";
@@ -52,7 +64,7 @@ public class Province : MonoBehaviour
         }
     }
     
-    private void SetupBorder()
+    private void SetupProvinceBorder()
     {
         // Get or add LineRenderer component
         lineRenderer = GetComponent<LineRenderer>();
@@ -74,8 +86,8 @@ public class Province : MonoBehaviour
         
         // Set the color
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.startColor = borderColor;
-        lineRenderer.endColor = borderColor;
+        lineRenderer.startColor = provinceBorderColor;
+        lineRenderer.endColor = provinceBorderColor;
         
         // Get the sprite bounds
         if (spriteRenderer != null && spriteRenderer.sprite != null)
@@ -97,25 +109,16 @@ public class Province : MonoBehaviour
     
     public void SetOwner(Nation nation)
     {
+        Nation previousOwner = ownerNation;
         ownerNation = nation;
         
-        // Update visual appearance based on ownership
-        if (spriteRenderer != null)
+        // No change to the tile color - it stays green
+        
+        // Trigger event for territory border update
+        if (previousOwner != nation)
         {
-            if (nation != null)
-            {
-                spriteRenderer.color = nation.nationColor;
-                Debug.Log($"Province at ({x},{y}) color set to {nation.nationColor} for nation {nation.nationName}");
-            }
-            else
-            {
-                spriteRenderer.color = neutralColor; // Reset to neutral color if no owner
-                Debug.Log($"Province at ({x},{y}) color set to neutral");
-            }
-        }
-        else
-        {
-            Debug.LogError($"Province at ({x},{y}) is missing SpriteRenderer reference!");
+            OnOwnershipChanged?.Invoke(this, previousOwner, nation);
+            Debug.Log($"Province at ({x},{y}) ownership changed from {(previousOwner?.nationName ?? "none")} to {(nation?.nationName ?? "none")}");
         }
     }
     
