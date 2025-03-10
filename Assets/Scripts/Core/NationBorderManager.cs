@@ -4,17 +4,32 @@ using UnityEngine;
 public class NationBorderManager : MonoBehaviour
 {
     [SerializeField] private float borderWidth = 0.15f;
-    [SerializeField] private float borderOffset = 0.05f; // Offset from tile edges
-    [SerializeField] private bool useSimpleOutlines = false; // Set to true to use simpler box outlines
-    [SerializeField] private bool debugDrawGrid = false; // For debugging
+    [SerializeField] private float borderOffset = 0.0f; // Set to zero for tight borders
+    [SerializeField] private bool useSimpleOutlines = false;
+    [SerializeField] private bool debugDrawGrid = false;
     
     private Dictionary<Nation, LineRenderer> nationBorders = new Dictionary<Nation, LineRenderer>();
     private MapGenerator mapGenerator;
-    private float tileSize = 1f; // Default tile size
+    private float tileSize = 1f;
     
-    // Direction vectors for checking neighbors (right, up, left, down)
-    private static readonly int[] dx = { 1, 0, -1, 0 };
+    // Direction vectors for checking neighbors
+    private static readonly int[] dx = { 1, 0, -1, 0 }; // Right, Up, Left, Down
     private static readonly int[] dy = { 0, 1, 0, -1 };
+    
+    // Edge segments for each direction
+    private class EdgeSegment
+    {
+        public Vector2 start;
+        public Vector2 end;
+        public bool isVisited;
+        
+        public EdgeSegment(Vector2 start, Vector2 end)
+        {
+            this.start = start;
+            this.end = end;
+            this.isVisited = false;
+        }
+    }
     
     void OnEnable()
     {
@@ -71,7 +86,7 @@ public class NationBorderManager : MonoBehaviour
         }
         nationBorders.Clear();
         
-        // Draw new borders for all nations
+        // Draw new borders for all nations using the new method
         Nation[] nations = FindObjectsByType<Nation>(FindObjectsSortMode.None);
         foreach (Nation nation in nations)
         {
@@ -103,18 +118,19 @@ public class NationBorderManager : MonoBehaviour
             nationBorders[nation] = lineRenderer;
         }
         
-        // Generate the border points
+        // Generate the border points using our new precise method
         List<Vector2> borderPoints;
+        
         if (useSimpleOutlines)
         {
             borderPoints = GenerateSimpleBorder(nation);
         }
         else
         {
-            borderPoints = GenerateContourBorder(nation);
+            borderPoints = GeneratePreciseBorder(nation);
         }
         
-        // Apply points to the line renderer
+        // Apply the border to the line renderer
         if (borderPoints.Count > 1)
         {
             lineRenderer.positionCount = borderPoints.Count;
@@ -125,7 +141,6 @@ public class NationBorderManager : MonoBehaviour
         }
         else
         {
-            // If we couldn't generate proper border points, hide the line renderer
             lineRenderer.positionCount = 0;
         }
     }
@@ -148,8 +163,8 @@ public class NationBorderManager : MonoBehaviour
         lineRenderer.sortingOrder = 2;
     }
     
-    // New contour-based border generation that follows the actual shape
-    private List<Vector2> GenerateContourBorder(Nation nation)
+    // Generate precise borders by following province edges
+    private List<Vector2> GeneratePreciseBorder(Nation nation)
     {
         if (mapGenerator == null || mapGenerator.provinces == null)
             return new List<Vector2>();
@@ -157,199 +172,216 @@ public class NationBorderManager : MonoBehaviour
         int mapWidth = mapGenerator.provinces.GetLength(0);
         int mapHeight = mapGenerator.provinces.GetLength(1);
         
-        // Create a grid to mark which cells are owned by this nation
-        bool[,] owned = new bool[mapWidth, mapHeight];
+        // Build a 2D array representing territory ownership
+        bool[,] ownedCells = new bool[mapWidth, mapHeight];
         
+        // Mark territories owned by this nation
         foreach (Province province in nation.controlledProvinces)
         {
             if (province.x >= 0 && province.x < mapWidth && province.y >= 0 && province.y < mapHeight)
             {
-                owned[province.x, province.y] = true;
+                ownedCells[province.x, province.y] = true;
             }
         }
         
-        // Create a larger grid for edge detection (double resolution)
-        int gridWidth = mapWidth * 2;
-        int gridHeight = mapHeight * 2;
-        bool[,] grid = new bool[gridWidth, gridHeight];
+        // Find all border edges (between owned and non-owned cells)
+        List<EdgeSegment> allEdges = new List<EdgeSegment>();
         
-        // Fill the high-resolution grid
+        // For each owned cell, check if any of its edges are borders
         for (int x = 0; x < mapWidth; x++)
         {
             for (int y = 0; y < mapHeight; y++)
             {
-                if (owned[x, y])
+                if (ownedCells[x, y])
                 {
-                    // Each province fills 2x2 cells in the high-res grid
-                    grid[x*2, y*2] = true;
-                    grid[x*2+1, y*2] = true;
-                    grid[x*2, y*2+1] = true;
-                    grid[x*2+1, y*2+1] = true;
+                    // Check all 4 directions for borders
+                    for (int dir = 0; dir < 4; dir++)
+                    {
+                        int nx = x + dx[dir];
+                        int ny = y + dy[dir];
+                        
+                        // If neighbor is outside map bounds or not owned by this nation, this is a border edge
+                        if (nx < 0 || nx >= mapWidth || ny < 0 || ny >= mapHeight || !ownedCells[nx, ny])
+                        {
+                            // Add this edge segment to our list
+                            EdgeSegment segment = CreateEdgeSegment(x, y, dir);
+                            allEdges.Add(segment);
+                        }
+                    }
                 }
             }
         }
         
-        // Debug draw the grid
-        if (debugDrawGrid)
+        // Now we need to connect these edges into a continuous loop
+        List<Vector2> borderPoints = ConnectEdgesToLoop(allEdges);
+        
+        // Apply smoothing to the border if desired
+        if (borderPoints.Count > 3)
         {
-            for (int x = 0; x < gridWidth; x++)
-            {
-                for (int y = 0; y < gridHeight; y++)
-                {
-                    Color debugColor = grid[x, y] ? Color.green : Color.red;
-                    Debug.DrawRay(GridToWorld(x, y, gridWidth, gridHeight), Vector3.up * 0.1f, debugColor, 5f);
-                }
-            }
+            borderPoints = SmoothPoints(borderPoints, 0.1f);
         }
         
-        // Find contour edges - these are edges between owned and unowned cells
-        List<Vector2> contourPoints = new List<Vector2>();
-        bool[,] visited = new bool[gridWidth, gridHeight];
+        return borderPoints;
+    }
+    
+    // Create an edge segment for a cell in the given direction
+    private EdgeSegment CreateEdgeSegment(int x, int y, int direction)
+    {
+        float cellSize = tileSize;
         
-        // Find a starting edge cell - look for the leftmost then bottommost owned cell
-        int startX = -1, startY = -1;
-        for (int x = 0; x < gridWidth; x++)
+        // Calculate the map offset
+        MapGenerator mapGen = FindAnyObjectByType<MapGenerator>();
+        int mapWidth = mapGen.provinces.GetLength(0);
+        int mapHeight = mapGen.provinces.GetLength(1);
+        
+        float offsetX = -((mapWidth * tileSize) / 2.0f);
+        float offsetY = -((mapHeight * tileSize) / 2.0f);
+        
+        // Adjust for tile centering
+        offsetX += tileSize / 2.0f;
+        offsetY += tileSize / 2.0f;
+        
+        // Base coordinates of the province
+        float baseX = offsetX + (x * cellSize);
+        float baseY = offsetY + (y * cellSize);
+        
+        // Half dimensions of each province
+        float half = cellSize / 2.0f;
+        
+        Vector2 start, end;
+        
+        // Create segment based on direction
+        switch (direction)
         {
-            for (int y = 0; y < gridHeight; y++)
-            {
-                if (grid[x, y] && ((x == 0 || !grid[x-1, y]) || (y == 0 || !grid[x, y-1])))
-                {
-                    startX = x;
-                    startY = y;
-                    break;
-                }
-            }
-            if (startX != -1) break;
+            case 0: // Right edge
+                start = new Vector2(baseX + half, baseY - half);
+                end = new Vector2(baseX + half, baseY + half);
+                break;
+            case 1: // Top edge
+                start = new Vector2(baseX - half, baseY + half);
+                end = new Vector2(baseX + half, baseY + half);
+                break;
+            case 2: // Left edge
+                start = new Vector2(baseX - half, baseY + half);
+                end = new Vector2(baseX - half, baseY - half);
+                break;
+            case 3: // Bottom edge
+                start = new Vector2(baseX + half, baseY - half);
+                end = new Vector2(baseX - half, baseY - half);
+                break;
+            default:
+                start = end = Vector2.zero;
+                break;
         }
         
-        if (startX == -1) // No edge found
-            return GenerateSimpleBorder(nation); // Fall back to simple border
+        // Add a slight offset to ensure the border sits just outside the province
+        Vector2 normalizedDir = (end - start).normalized;
+        Vector2 perpendicular = new Vector2(-normalizedDir.y, normalizedDir.x) * borderOffset;
+        start += perpendicular;
+        end += perpendicular;
         
-        // Trace the contour
-        Vector2 startPoint = GridToWorld(startX, startY, gridWidth, gridHeight);
-        contourPoints.Add(startPoint);
-        int x1 = startX;
-        int y1 = startY;
-        visited[x1, y1] = true;
+        return new EdgeSegment(start, end);
+    }
+    
+    // Connect edge segments into a continuous loop
+    private List<Vector2> ConnectEdgesToLoop(List<EdgeSegment> edges)
+    {
+        List<Vector2> result = new List<Vector2>();
         
-        // Follow the contour using the right-hand rule
-        int dir = 0; // 0=right, 1=up, 2=left, 3=down
-        bool foundPath = false;
-        int maxSteps = gridWidth * gridHeight * 2; // Prevent infinite loops
-        int steps = 0;
+        if (edges.Count == 0) return result;
         
-        while (steps < maxSteps)
+        // Use a simpler approach for small territories
+        if (edges.Count <= 10)
         {
-            steps++;
-            
-            // Try turning right first (relative to current direction)
-            int newDir = (dir + 3) % 4;
-            int newX = x1 + dx[newDir];
-            int newY = y1 + dy[newDir];
-            
-            // Check if we can go this way
-            if (IsValidGridCell(newX, newY, gridWidth, gridHeight) && grid[newX, newY])
+            // Add all start points to the result
+            foreach (var edge in edges)
             {
-                // We can go right, so turn right and move
-                dir = newDir;
-                x1 = newX;
-                y1 = newY;
-                
-                if (!visited[x1, y1])
-                {
-                    visited[x1, y1] = true;
-                    Vector2 worldPos = GridToWorld(x1, y1, gridWidth, gridHeight);
-                    contourPoints.Add(worldPos);
-                }
-                
-                // If we're back at start, we've completed the loop
-                if (x1 == startX && y1 == startY)
-                {
-                    foundPath = true;
-                    break;
-                }
-                
-                continue;
+                result.Add(edge.start);
             }
-            
-            // Try going straight
-            newDir = dir;
-            newX = x1 + dx[newDir];
-            newY = y1 + dy[newDir];
-            
-            if (IsValidGridCell(newX, newY, gridWidth, gridHeight) && grid[newX, newY])
+            // Close the loop if possible
+            if (result.Count > 0)
             {
-                // We can go straight, so move
-                x1 = newX;
-                y1 = newY;
-                
-                if (!visited[x1, y1])
-                {
-                    visited[x1, y1] = true;
-                    Vector2 worldPos = GridToWorld(x1, y1, gridWidth, gridHeight);
-                    contourPoints.Add(worldPos);
-                }
-                
-                // If we're back at start, we've completed the loop
-                if (x1 == startX && y1 == startY)
-                {
-                    foundPath = true;
-                    break;
-                }
-                
-                continue;
+                result.Add(result[0]);
             }
-            
-            // Try turning left
-            newDir = (dir + 1) % 4;
-            newX = x1 + dx[newDir];
-            newY = y1 + dy[newDir];
-            
-            if (IsValidGridCell(newX, newY, gridWidth, gridHeight) && grid[newX, newY])
-            {
-                // We can go left, so turn left and move
-                dir = newDir;
-                x1 = newX;
-                y1 = newY;
-                
-                if (!visited[x1, y1])
-                {
-                    visited[x1, y1] = true;
-                    Vector2 worldPos = GridToWorld(x1, y1, gridWidth, gridHeight);
-                    contourPoints.Add(worldPos);
-                }
-                
-                // If we're back at start, we've completed the loop
-                if (x1 == startX && y1 == startY)
-                {
-                    foundPath = true;
-                    break;
-                }
-                
-                continue;
-            }
-            
-            // We can't go anywhere, turn around
-            dir = (dir + 2) % 4;
+            return result;
         }
         
-        // If we couldn't find a complete path, fall back to simple border
-        if (!foundPath || contourPoints.Count < 3)
+        // Try to connect edges into a proper loop
+        EdgeSegment current = edges[0];
+        result.Add(current.start);
+        current.isVisited = true;
+        
+        int safetyCounter = edges.Count * 2; // Prevent infinite loops
+        bool foundNext = true;
+        
+        while (foundNext && safetyCounter > 0)
         {
-            return GenerateSimpleBorder(nation);
+            safetyCounter--;
+            result.Add(current.end);
+            
+            foundNext = false;
+            float smallestDistance = float.MaxValue;
+            EdgeSegment nextSegment = null;
+            
+            // Find the closest segment to the current end point
+            foreach (var segment in edges)
+            {
+                if (!segment.isVisited)
+                {
+                    float distToStart = Vector2.Distance(current.end, segment.start);
+                    if (distToStart < smallestDistance)
+                    {
+                        smallestDistance = distToStart;
+                        nextSegment = segment;
+                    }
+                    
+                    float distToEnd = Vector2.Distance(current.end, segment.end);
+                    if (distToEnd < smallestDistance)
+                    {
+                        smallestDistance = distToEnd;
+                        nextSegment = segment;
+                        // Need to reverse this segment
+                        Vector2 temp = segment.start;
+                        segment.start = segment.end;
+                        segment.end = temp;
+                    }
+                }
+            }
+            
+            // If we found a close enough segment, continue the loop
+            if (nextSegment != null && smallestDistance < tileSize * 1.5f)
+            {
+                current = nextSegment;
+                current.isVisited = true;
+                foundNext = true;
+            }
         }
         
-        // Add first point at the end to close the loop
-        if (contourPoints.Count > 0)
+        // Close the loop if possible
+        if (result.Count > 2)
         {
-            contourPoints.Add(contourPoints[0]);
+            float closeDistance = Vector2.Distance(result[0], result[result.Count - 1]);
+            if (closeDistance < tileSize * 1.5f)
+            {
+                result.Add(result[0]); // Complete the loop
+            }
         }
         
-        // Apply smoothing to the contour (optional)
-        List<Vector2> smoothedPoints = SmoothPoints(contourPoints, 0.25f);
+        // If we couldn't create a proper loop, try a simpler approach
+        if (result.Count < 3)
+        {
+            result.Clear();
+            foreach (var edge in edges)
+            {
+                result.Add(edge.start);
+            }
+            if (result.Count > 0)
+            {
+                result.Add(result[0]);
+            }
+        }
         
-        // Return the resulting contour
-        return smoothedPoints;
+        return result;
     }
     
     // Helper to convert grid coordinates to world coordinates

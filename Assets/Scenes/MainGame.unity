@@ -703,10 +703,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 10
   edgeScrollThreshold: 0
-  useEdgeScrolling: 1
+  useEdgeScrolling: 0
   zoomSpeed: 1
   minZoom: 2
-  maxZoom: 12
+  maxZoom: 10
   zoomCurve:
     serializedVersion: 2
     m_Curve:
@@ -1373,10 +1373,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2f978e7ca4a94c9b9d64420e8a982dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  borderWidth: 0.1
-  borderOffset: 0.1
+  borderWidth: 0.15
+  borderOffset: 0.15
   useSimpleOutlines: 0
-  debugDrawGrid: 1
+  debugDrawGrid: 0
 --- !u!1 &1330501931
 GameObject:
   m_ObjectHideFlags: 0
