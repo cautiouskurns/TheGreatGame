@@ -535,6 +535,8 @@ MonoBehaviour:
   nationColor: {r: 0.043592352, g: 0, b: 0.6509434, a: 1}
   isPlayerControlled: 1
   gold: 100
+  food: 100
+  production: 100
   controlledProvinces: []
 --- !u!4 &492404648
 Transform:
@@ -872,6 +874,15 @@ MonoBehaviour:
   - {fileID: 492404647}
   - {fileID: 1734527226}
   unownedProvincePercentage: 0.3
+  waterPercent: 0.3
+  mountainPercent: 0.1
+  hillPercent: 0.15
+  forestPercent: 0.2
+  desertPercent: 0.1
+  terrainSeed: 0
+  terrainScale: 10
+  settlementPrefab: {fileID: 6542771834049383190, guid: 95a49c653d0c845f69fee668e3e5225b, type: 3}
+  initialSettlementPercent: 0.2
 --- !u!1 &802423047
 GameObject:
   m_ObjectHideFlags: 0
@@ -1849,6 +1860,8 @@ MonoBehaviour:
   nationColor: {r: 0.6981132, g: 0, b: 0.10422937, a: 1}
   isPlayerControlled: 0
   gold: 100
+  food: 100
+  production: 100
   controlledProvinces: []
 --- !u!4 &1734527227
 Transform:

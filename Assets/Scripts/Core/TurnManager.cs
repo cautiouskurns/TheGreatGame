@@ -22,41 +22,16 @@ public class TurnManager : MonoBehaviour
             nations.AddRange(FindObjectsByType<Nation>(FindObjectsSortMode.None));
         }
         
-        // Distribute initial provinces
-        AssignInitialProvinces();
-        
         // Start first turn
         StartTurn();
-    }
-    
-    private void AssignInitialProvinces()
-    {
-        MapGenerator mapGen = FindAnyObjectByType<MapGenerator>();
-        if (mapGen == null || mapGen.provinces == null) return;
-        
-        // Give first nation provinces on the left side
-        for (int x = 0; x < 3; x++)
-        {
-            for (int y = 0; y < mapGen.provinces.GetLength(1); y++)
-            {
-                nations[0].AddProvince(mapGen.provinces[x, y]);
-            }
-        }
-        
-        // Give second nation provinces on the right side
-        int width = mapGen.provinces.GetLength(0);
-        for (int x = width - 3; x < width; x++)
-        {
-            for (int y = 0; y < mapGen.provinces.GetLength(1); y++)
-            {
-                nations[1].AddProvince(mapGen.provinces[x, y]);
-            }
-        }
     }
     
     private void StartTurn()
     {
         Debug.Log($"Starting turn for {CurrentNation.nationName}");
+        
+        // Process settlements before regenerating resources
+        ProcessAllSettlements();
         
         // Regenerate resources in all provinces
         RegenerateAllProvinces();
@@ -92,5 +67,18 @@ public class TurnManager : MonoBehaviour
         {
             province.RegenerateResources();
         }
+    }
+    
+    // Process growth and production for all settlements
+    private void ProcessAllSettlements()
+    {
+        Settlement[] settlements = FindObjectsByType<Settlement>(FindObjectsSortMode.None);
+        
+        foreach (Settlement settlement in settlements)
+        {
+            settlement.ProcessTurn();
+        }
+        
+        Debug.Log($"Processed {settlements.Length} settlements");
     }
 }

@@ -155,6 +155,14 @@ MonoBehaviour:
   provinceBorderColor: {r: 0.23584908, g: 0.23584908, b: 0.23584908, a: 0.8}
   borderWidth: 0.05
   _ownerNation: {fileID: 0}
+  _terrainType: 0
+  plainsColor: {r: 0.4, g: 0.8, b: 0.4, a: 1}
+  hillsColor: {r: 0.6, g: 0.7, b: 0.3, a: 1}
+  mountainsColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  forestColor: {r: 0.2, g: 0.6, b: 0.2, a: 1}
+  desertColor: {r: 0.9, g: 0.9, b: 0.6, a: 1}
+  waterColor: {r: 0.2, g: 0.4, b: 0.8, a: 1}
+  settlement: {fileID: 0}
   resources: 10
 --- !u!114 &8903438936862056775
 MonoBehaviour:
@@ -181,5 +189,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   province: {fileID: 0}
-  borderWidth: 0.08
+  borderWidth: 0.06
   borderColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}

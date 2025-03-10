@@ -9,6 +9,8 @@ public class Nation : MonoBehaviour
     public bool isPlayerControlled = false;
     
     public int gold = 100;
+    public int food = 100;
+    public int production = 100;
     public List<Province> controlledProvinces = new List<Province>();
     
     public void AddProvince(Province province)
@@ -33,10 +35,13 @@ public class Nation : MonoBehaviour
     {
         foreach (Province province in controlledProvinces)
         {
-            gold += province.CollectResources();
+            int collectedResources = province.CollectResources();
+            gold += collectedResources;
+            food += collectedResources;
+            production += collectedResources;
         }
         
-        Debug.Log($"{nationName} now has {gold} gold");
+        Debug.Log($"{nationName} now has {gold} gold, {food} food, {production} production");
     }
     
     // Very simple AI for non-player nation

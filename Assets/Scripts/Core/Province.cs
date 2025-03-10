@@ -16,6 +16,39 @@ public class Province : MonoBehaviour
     [Header("Ownership")]
     [SerializeField] private Nation _ownerNation = null; // Will be visible in inspector
     
+    [Header("Terrain")]
+    [SerializeField] private TerrainType _terrainType = TerrainType.Plains;
+    [SerializeField] private Color plainsColor = new Color(0.4f, 0.8f, 0.4f);
+    [SerializeField] private Color hillsColor = new Color(0.6f, 0.7f, 0.3f);
+    [SerializeField] private Color mountainsColor = new Color(0.5f, 0.5f, 0.5f);
+    [SerializeField] private Color forestColor = new Color(0.2f, 0.6f, 0.2f);
+    [SerializeField] private Color desertColor = new Color(0.9f, 0.9f, 0.6f);
+    [SerializeField] private Color waterColor = new Color(0.2f, 0.4f, 0.8f);
+    
+    // Resource values for different terrain types
+    private int[] terrainResourceValues = new int[6] 
+    {
+        15, // Plains
+        12, // Hills
+        8,  // Mountains
+        10, // Forest
+        5,  // Desert
+        20  // Water (coastal trade)
+    };
+    
+    // Whether settlements can be built on this terrain type
+    private bool[] terrainSettlementAllowed = new bool[6]
+    {
+        true,  // Plains
+        true,  // Hills
+        false, // Mountains
+        true,  // Forest
+        true,  // Desert
+        false  // Water
+    };
+    
+    public Settlement settlement; // Reference to a settlement if one exists on this province
+    
     public int x { get; private set; }
     public int y { get; private set; }
     
@@ -24,6 +57,17 @@ public class Province : MonoBehaviour
     { 
         get { return _ownerNation; }
         private set { _ownerNation = value; }
+    }
+    
+    // Terrain type property
+    public TerrainType terrainType
+    {
+        get { return _terrainType; }
+        private set 
+        { 
+            _terrainType = value;
+            UpdateTerrainVisuals();
+        }
     }
     
     public int resources = 10; // Simple resource value for now
@@ -53,12 +97,12 @@ public class Province : MonoBehaviour
             SetupProvinceBorder();
         }
         
-        // Set province color to green
+        // Set initial terrain visuals (will use Plains by default)
+        UpdateTerrainVisuals();
+        
+        // Set the sorting layer and order to ensure it's above the background
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = provinceColor;
-            
-            // Set the sorting layer and order to ensure it's above the background
             spriteRenderer.sortingLayerName = "Provinces";
             spriteRenderer.sortingOrder = 0;
         }
@@ -107,18 +151,49 @@ public class Province : MonoBehaviour
         }
     }
     
+    // Method to set terrain type
+    public void SetTerrainType(TerrainType type)
+    {
+        terrainType = type;
+    }
+    
+    // Update visuals based on terrain type
+    private void UpdateTerrainVisuals()
+    {
+        if (spriteRenderer == null) return;
+        
+        // Set color based on terrain type
+        switch (_terrainType)
+        {
+            case TerrainType.Plains:
+                spriteRenderer.color = plainsColor;
+                break;
+            case TerrainType.Hills:
+                spriteRenderer.color = hillsColor;
+                break;
+            case TerrainType.Mountains:
+                spriteRenderer.color = mountainsColor;
+                break;
+            case TerrainType.Forest:
+                spriteRenderer.color = forestColor;
+                break;
+            case TerrainType.Desert:
+                spriteRenderer.color = desertColor;
+                break;
+            case TerrainType.Water:
+                spriteRenderer.color = waterColor;
+                break;
+        }
+    }
+    
     public void SetOwner(Nation nation)
     {
         Nation previousOwner = ownerNation;
         ownerNation = nation;
         
-        // No change to the province fill color - it stays green
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.color = provinceColor;
-        }
+        // Don't change the base color - keep the terrain color
+        // Only update the border color
         
-        // Update the province outline color to match the nation
         if (lineRenderer != null)
         {
             if (nation != null)
@@ -126,12 +201,6 @@ public class Province : MonoBehaviour
                 // Use the nation color for the border
                 lineRenderer.startColor = nation.nationColor;
                 lineRenderer.endColor = nation.nationColor;
-                
-                // Optionally increase visibility of the border
-                // Color borderColor = nation.nationColor;
-                // borderColor.a = 1.0f; // Make fully opaque
-                // lineRenderer.startColor = borderColor;
-                // lineRenderer.endColor = borderColor;
             }
             else
             {
@@ -149,6 +218,19 @@ public class Province : MonoBehaviour
         }
     }
     
+    // Generate resources based on terrain type
+    public void RegenerateResources()
+    {
+        // Get resource value based on terrain type
+        resources = terrainResourceValues[(int)_terrainType];
+        
+        // Add settlement bonus if a settlement exists here
+        if (settlement != null)
+        {
+            resources += settlement.resourceBonus;
+        }
+    }
+    
     // Simple method for collecting resources
     public int CollectResources()
     {
@@ -157,10 +239,10 @@ public class Province : MonoBehaviour
         return collected;
     }
     
-    // Reset resources at end of turn
-    public void RegenerateResources()
+    // Check if a settlement can be built on this terrain
+    public bool CanBuildSettlement()
     {
-        resources = 10;
+        return terrainSettlementAllowed[(int)_terrainType];
     }
     
     // Optional: Method to toggle border visibility
