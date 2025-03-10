@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1383581554417600532}
   - component: {fileID: 1796514438085636899}
   - component: {fileID: 8903438936862056775}
+  - component: {fileID: 4861511550754051489}
   m_Layer: 0
   m_Name: ProvinceTile
   m_TagString: Untagged
@@ -30,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.99, y: 0.99, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -150,9 +151,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 4287411118080137571}
   provinceColor: {r: 0.4, g: 0.8, b: 0.4, a: 1}
-  showProvinceBorder: 1
-  provinceBorderColor: {r: 0.2, g: 0.2, b: 0.2, a: 0.8}
-  borderWidth: 0.01
+  showProvinceBorder: 0
+  provinceBorderColor: {r: 0.23584908, g: 0.23584908, b: 0.23584908, a: 0.8}
+  borderWidth: 0.05
   _ownerNation: {fileID: 0}
   resources: 10
 --- !u!114 &8903438936862056775
@@ -167,3 +168,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd776599b7016481b9b90e34bcd6f5fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4861511550754051489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2481206217491679764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cadd4e6be3d5b405f816151575991234, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  province: {fileID: 0}
+  borderWidth: 0.08
+  borderColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}

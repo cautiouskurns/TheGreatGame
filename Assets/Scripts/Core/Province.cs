@@ -112,7 +112,34 @@ public class Province : MonoBehaviour
         Nation previousOwner = ownerNation;
         ownerNation = nation;
         
-        // No change to the tile color - it stays green
+        // No change to the province fill color - it stays green
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = provinceColor;
+        }
+        
+        // Update the province outline color to match the nation
+        if (lineRenderer != null)
+        {
+            if (nation != null)
+            {
+                // Use the nation color for the border
+                lineRenderer.startColor = nation.nationColor;
+                lineRenderer.endColor = nation.nationColor;
+                
+                // Optionally increase visibility of the border
+                // Color borderColor = nation.nationColor;
+                // borderColor.a = 1.0f; // Make fully opaque
+                // lineRenderer.startColor = borderColor;
+                // lineRenderer.endColor = borderColor;
+            }
+            else
+            {
+                // Reset to default border color if no nation owns this province
+                lineRenderer.startColor = provinceBorderColor;
+                lineRenderer.endColor = provinceBorderColor;
+            }
+        }
         
         // Trigger event for territory border update
         if (previousOwner != nation)
