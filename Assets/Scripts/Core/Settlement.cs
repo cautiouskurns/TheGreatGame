@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Settlement : MonoBehaviour
 {
@@ -31,6 +32,11 @@ public class Settlement : MonoBehaviour
     [SerializeField] private Color townColor = new Color(0.8f, 0.7f, 0.5f);
     [SerializeField] private Color cityColor = new Color(0.7f, 0.6f, 0.4f);
     [SerializeField] private Color metropolisColor = new Color(0.6f, 0.5f, 0.3f);
+    
+    [Header("Debug Visualization")]
+    [SerializeField] private bool showDebugInfo = true;
+    [SerializeField] private TextMeshPro nameText;
+    [SerializeField] private TextMeshPro sizeText;
     
     [Header("References")]
     public Province province;
@@ -73,6 +79,9 @@ public class Settlement : MonoBehaviour
         province.settlement = this;
         
         UpdateVisuals();
+        
+        // Setup debug visualization
+        SetupDebugVisualization();
     }
     
     private string GenerateRandomName()
@@ -125,6 +134,9 @@ public class Settlement : MonoBehaviour
                 resourceBonus = 40;
                 break;
         }
+        
+        // Update debug text
+        UpdateDebugText();
     }
     
     // Process population growth and check for settlement upgrades
@@ -142,6 +154,9 @@ public class Settlement : MonoBehaviour
         
         // Update resource production
         UpdateResourceProduction();
+        
+        // Update debug visualization after changes
+        UpdateDebugText();
     }
     
     private void UpgradeSettlement()
@@ -189,6 +204,56 @@ public class Settlement : MonoBehaviour
             case Size.Metropolis:
                 resourceBonus = Mathf.RoundToInt(40 + (40 * populationScale));
                 break;
+        }
+    }
+    
+    // Debug visualization methods
+    private void SetupDebugVisualization()
+    {
+        if (!showDebugInfo) return;
+        
+        // Create text for settlement name if it doesn't exist
+        if (nameText == null)
+        {
+            GameObject nameObj = new GameObject("SettlementName");
+            nameObj.transform.SetParent(transform);
+            nameObj.transform.localPosition = new Vector3(0, 0.5f, 0);
+            
+            nameText = nameObj.AddComponent<TextMeshPro>();
+            nameText.fontSize = 4;
+            nameText.alignment = TextAlignmentOptions.Center;
+            nameText.color = Color.black;
+        }
+        
+        // Create text for settlement size if it doesn't exist
+        if (sizeText == null)
+        {
+            GameObject sizeObj = new GameObject("SettlementSize");
+            sizeObj.transform.SetParent(transform);
+            sizeObj.transform.localPosition = new Vector3(0, 0.3f, 0);
+            
+            sizeText = sizeObj.AddComponent<TextMeshPro>();
+            sizeText.fontSize = 3;
+            sizeText.alignment = TextAlignmentOptions.Center;
+            sizeText.color = Color.blue;
+        }
+        
+        // Update texts
+        UpdateDebugText();
+    }
+    
+    private void UpdateDebugText()
+    {
+        if (!showDebugInfo) return;
+        
+        if (nameText != null)
+        {
+            nameText.text = settlementName;
+        }
+        
+        if (sizeText != null)
+        {
+            sizeText.text = $"{size} (Pop: {population})";
         }
     }
 }

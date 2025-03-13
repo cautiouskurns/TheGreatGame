@@ -25,7 +25,7 @@ public class MapGenerator : MonoBehaviour
     
     [Header("Settlement Settings")]
     [SerializeField] private GameObject settlementPrefab;
-    [SerializeField] private float initialSettlementPercent = 0.2f;
+    [SerializeField] private float initialSettlementPercent = 0.1f;
     
     public Province[,] provinces;
     

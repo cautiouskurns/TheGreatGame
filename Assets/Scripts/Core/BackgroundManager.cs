@@ -15,7 +15,7 @@ public class BackgroundManager : MonoBehaviour
     }
     
     [SerializeField] private BackgroundFitMode fitMode = BackgroundFitMode.PreserveOriginal;
-    [SerializeField] private float scaleFactor = 1.5f;  // Additional scale factor
+    [SerializeField] private float scaleFactor;  // Additional scale factor
     [SerializeField] private Vector2 offsetPosition = Vector2.zero;  // Offset from center
     
     void Start()
@@ -102,8 +102,8 @@ public class BackgroundManager : MonoBehaviour
         float spriteHeight = spriteSize.y;
         
         // Calculate scale based on fit mode
-        float scaleX = 1.5f;
-        float scaleY = 1.5f;
+        float scaleX = 2.5f;
+        float scaleY = 2.5f;
         
         switch (fitMode)
         {

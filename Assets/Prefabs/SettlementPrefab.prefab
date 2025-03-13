@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 3612574524849851002}
   - component: {fileID: 6952730931924615568}
   - component: {fileID: 3005027528342290699}
+  - component: {fileID: 9171028592879085481}
+  - component: {fileID: 4142338532087665022}
   m_Layer: 0
   m_Name: SettlementPrefab
   m_TagString: Untagged
@@ -111,8 +113,59 @@ MonoBehaviour:
   townSprite: {fileID: 0}
   citySprite: {fileID: 0}
   metropolisSprite: {fileID: 0}
-  villageColor: {r: 0.8, g: 0.8, b: 0.6, a: 1}
+  villageColor: {r: 0.6132076, g: 0, b: 0.06857544, a: 1}
   townColor: {r: 0.8, g: 0.7, b: 0.5, a: 1}
   cityColor: {r: 0.7, g: 0.6, b: 0.4, a: 1}
   metropolisColor: {r: 0.6, g: 0.5, b: 0.3, a: 1}
+  showDebugInfo: 1
+  nameText: {fileID: 0}
+  sizeText: {fileID: 0}
   province: {fileID: 0}
+--- !u!114 &9171028592879085481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6542771834049383190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51fb15286ab4a4f4b8948d4be66484c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!58 &4142338532087665022
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6542771834049383190}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.1
