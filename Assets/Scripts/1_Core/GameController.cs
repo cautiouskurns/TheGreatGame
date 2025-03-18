@@ -1,9 +1,9 @@
 // GameManager.cs
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameController : MonoBehaviour
 {
-public static GameManager Instance { get; private set; }
+public static GameController Instance { get; private set; }
     
     void Awake()
     {
@@ -11,7 +11,7 @@ public static GameManager Instance { get; private set; }
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            ServiceLocator.Register<GameManager>(this);
+            ServiceLocator.Register<GameController>(this);
         }
         else
         {

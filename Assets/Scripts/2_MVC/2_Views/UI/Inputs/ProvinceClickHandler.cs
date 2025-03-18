@@ -15,7 +15,7 @@ public class ProvinceClickHandler : MonoBehaviour
         if (province != null)
         {
             // Try to claim this province
-            GameManager.Instance.ClaimProvince(province);
+            GameController.Instance.ClaimProvince(province);
         }
     }
 }

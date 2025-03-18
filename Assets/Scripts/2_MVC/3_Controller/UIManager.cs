@@ -28,14 +28,14 @@ public class UIManager : MonoBehaviour
         if (endTurnButton != null)
         {
             endTurnButton.onClick.AddListener(() => {
-                GameManager.Instance.EndPlayerTurn();
+                GameController.Instance.EndPlayerTurn();
             });
         }
         
         if (collectResourcesButton != null)
         {
             collectResourcesButton.onClick.AddListener(() => {
-                GameManager.Instance.CollectResources();
+                GameController.Instance.CollectResources();
                 UpdateUI(turnManager.CurrentNation);
             });
         }
