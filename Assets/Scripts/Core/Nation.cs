@@ -19,7 +19,7 @@ public class Nation : MonoBehaviour
         {
             controlledProvinces.Add(province);
             province.SetOwner(this);
-            Debug.Log($"Nation {nationName} added province ({province.x},{province.y})");
+//            Debug.Log($"Nation {nationName} added province ({province.x},{province.y})");
         }
     }
     

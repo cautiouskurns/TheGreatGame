@@ -189,5 +189,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   province: {fileID: 0}
-  borderWidth: 0.06
+  borderWidth: 0.05
   borderColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}

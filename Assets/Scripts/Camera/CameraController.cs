@@ -212,7 +212,7 @@ public class CameraController : MonoBehaviour
         horizontalLimit = worldSize.x / 2;
         verticalLimit = worldSize.y / 2;
         
-        Debug.Log($"Camera boundaries set from background: ±{horizontalLimit} horizontal, ±{verticalLimit} vertical");
+//        Debug.Log($"Camera boundaries set from background: ±{horizontalLimit} horizontal, ±{verticalLimit} vertical");
     }
 
     // Method to change the camera background color

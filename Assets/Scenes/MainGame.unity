@@ -708,7 +708,7 @@ MonoBehaviour:
   useEdgeScrolling: 0
   zoomSpeed: 1
   minZoom: 2
-  maxZoom: 15
+  maxZoom: 10
   zoomCurve:
     serializedVersion: 2
     m_Curve:
@@ -733,7 +733,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  horizontalLimit: -20
+  horizontalLimit: 0
   verticalLimit: -20
   useBackgroundAsBounds: 1
   backgroundColor: {r: 1, g: 1, b: 1, a: 1}
@@ -867,8 +867,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   provincePrefab: {fileID: 2481206217491679764, guid: ae84433fe4e2e4ea286d96229049c764, type: 3}
-  mapWidth: 40
-  mapHeight: 30
+  mapWidth: 25
+  mapHeight: 20
   tileSize: 1
   nations:
   - {fileID: 492404647}

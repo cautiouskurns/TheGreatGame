@@ -214,7 +214,7 @@ public class Province : MonoBehaviour
         if (previousOwner != nation)
         {
             OnOwnershipChanged?.Invoke(this, previousOwner, nation);
-            Debug.Log($"Province at ({x},{y}) ownership changed from {(previousOwner?.nationName ?? "none")} to {(nation?.nationName ?? "none")}");
+//            Debug.Log($"Province at ({x},{y}) ownership changed from {(previousOwner?.nationName ?? "none")} to {(nation?.nationName ?? "none")}");
         }
     }
     

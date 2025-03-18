@@ -59,9 +59,7 @@ public class BackgroundManager : MonoBehaviour
         
         // Apply position offset
         transform.position = new Vector3(offsetPosition.x, offsetPosition.y, 1f);
-        
-        Debug.Log($"Background scale fixed at: {scaleFactor}");
-        
+                
         // Update camera bounds based on this background
         UpdateCameraBounds();
     }
