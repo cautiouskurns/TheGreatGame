@@ -72,7 +72,7 @@ public class TurnManager : MonoBehaviour
         
         foreach (Province province in mapGen.provinces)
         {
-            //province.RegenerateResources();
+            province.RegenerateResources();
         }
     }
     

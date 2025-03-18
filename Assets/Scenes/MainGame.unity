@@ -832,7 +832,6 @@ GameObject:
   m_Component:
   - component: {fileID: 780846235}
   - component: {fileID: 780846236}
-  - component: {fileID: 780846237}
   m_Layer: 0
   m_Name: MapGenerator
   m_TagString: Untagged
@@ -884,18 +883,6 @@ MonoBehaviour:
   terrainScale: 10
   settlementPrefab: {fileID: 6542771834049383190, guid: 95a49c653d0c845f69fee668e3e5225b, type: 3}
   initialSettlementPercent: 0.2
---- !u!114 &780846237
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 780846234}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ddf0864f02a54bacadf681251b2e206, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &781844550
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1572,8 +1559,6 @@ MonoBehaviour:
   borderOffset: 0.15
   useSimpleOutlines: 0
   debugDrawGrid: 0
-  mapGenerator: {fileID: 0}
-  tileSize: 1
 --- !u!1 &1330501931
 GameObject:
   m_ObjectHideFlags: 0

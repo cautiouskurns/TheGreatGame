@@ -20,15 +20,15 @@ public class BorderManager : MonoBehaviour
         ServiceLocator.Register<BorderManager>(this);
     }
     
-    // void OnEnable()
-    // {
-    //     Province.OnOwnershipChanged += HandleProvinceOwnershipChanged;
-    // }
+    void OnEnable()
+    {
+        Province.OnOwnershipChanged += HandleProvinceOwnershipChanged;
+    }
     
-    // void OnDisable()
-    // {
-    //     Province.OnOwnershipChanged -= HandleProvinceOwnershipChanged;
-    // }
+    void OnDisable()
+    {
+        Province.OnOwnershipChanged -= HandleProvinceOwnershipChanged;
+    }
     
     public void CreateProvinceBorder(Province province)
     {
