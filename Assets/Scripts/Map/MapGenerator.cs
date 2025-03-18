@@ -31,10 +31,11 @@ public class MapGenerator : MonoBehaviour
     
     void Awake()
     {
+        ServiceLocator.Register<MapGenerator>(this);
         GenerateMap();
         AssignInitialProvinces();
     }
-    
+        
     public void GenerateMap()
     {
         // Set random seed for reproducible terrain generation
@@ -86,6 +87,16 @@ public class MapGenerator : MonoBehaviour
         if (settlementPrefab != null)
         {
             PlaceInitialSettlements();
+        }
+
+        // Create province borders using BorderManager
+        BorderManager borderManager = ServiceLocator.Get<BorderManager>();
+        if (borderManager != null)
+        {
+            foreach (var province in provinces)
+            {
+                borderManager.CreateProvinceBorder(province);
+            }
         }
 
         // After generating the map, configure the background
@@ -275,14 +286,14 @@ public class MapGenerator : MonoBehaviour
         Debug.Log($"Map generated with {provinceToAssign} provinces assigned to nations and {availableProvinces.Count} unowned provinces.");
         
         // After assigning provinces, redraw nation borders
-        NationBorderManager borderManager = FindAnyObjectByType<NationBorderManager>();
+        BorderManager borderManager = ServiceLocator.Get<BorderManager>();
         if (borderManager != null)
         {
-            borderManager.RedrawAllNationBorders();
+            borderManager.RedrawNationBorders();
         }
         else
         {
-            Debug.LogWarning("NationBorderManager not found. Nation borders will not be drawn.");
+            Debug.LogWarning("BorderManager not registered. Nation borders will not be drawn.");
         }
     }
     

@@ -1603,8 +1603,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b33f37913fd54b7ab4957a4000bfa75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnManager: {fileID: 56661676}
-  mapGenerator: {fileID: 780846236}
 --- !u!1 &1404761274
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,10 +3,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance { get; private set; }
-    
-    [SerializeField] private TurnManager turnManager;
-    [SerializeField] private MapGenerator mapGenerator;
+public static GameManager Instance { get; private set; }
     
     void Awake()
     {
@@ -14,21 +11,19 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            ServiceLocator.Register<GameManager>(this);
         }
         else
         {
             Destroy(gameObject);
         }
-        
-        // Find required components if not assigned
-        if (turnManager == null) turnManager = FindAnyObjectByType<TurnManager>();
-        if (mapGenerator == null) mapGenerator = FindAnyObjectByType<MapGenerator>();
     }
     
     // Method for the player to claim a province
     public bool ClaimProvince(Province province)
     {
-        if (!turnManager.IsPlayerTurn) return false;
+        TurnManager turnManager = ServiceLocator.Get<TurnManager>();
+        if (turnManager == null || !turnManager.IsPlayerTurn) return false;
         
         Nation playerNation = turnManager.CurrentNation;
         
@@ -49,15 +44,21 @@ public class GameManager : MonoBehaviour
     // Method for the player to collect resources
     public void CollectResources()
     {
-        if (!turnManager.IsPlayerTurn) return;
+        TurnManager turnManager = ServiceLocator.Get<TurnManager>();
+        EconomyManager economyManager = ServiceLocator.Get<EconomyManager>();
         
-        turnManager.CurrentNation.CollectAllResources();
+        if (turnManager == null || !turnManager.IsPlayerTurn || economyManager == null) 
+            return;
+        
+        economyManager.CollectNationResources(turnManager.CurrentNation);
     }
     
     // Method for the player to end their turn
     public void EndPlayerTurn()
     {
-        if (turnManager.IsPlayerTurn)
+        TurnManager turnManager = ServiceLocator.Get<TurnManager>();
+        
+        if (turnManager != null && turnManager.IsPlayerTurn)
         {
             turnManager.EndTurn();
         }
@@ -68,6 +69,10 @@ public class GameManager : MonoBehaviour
         // Check all four adjacent tiles
         int[] dx = { 0, 1, 0, -1 };
         int[] dy = { 1, 0, -1, 0 };
+        
+        MapGenerator mapGenerator = ServiceLocator.Get<MapGenerator>();
+        if (mapGenerator == null || mapGenerator.provinces == null)
+            return false;
         
         for (int i = 0; i < 4; i++)
         {

@@ -191,30 +191,10 @@ public class Province : MonoBehaviour
         Nation previousOwner = ownerNation;
         ownerNation = nation;
         
-        // Don't change the base color - keep the terrain color
-        // Only update the border color
-        
-        if (lineRenderer != null)
-        {
-            if (nation != null)
-            {
-                // Use the nation color for the border
-                lineRenderer.startColor = nation.nationColor;
-                lineRenderer.endColor = nation.nationColor;
-            }
-            else
-            {
-                // Reset to default border color if no nation owns this province
-                lineRenderer.startColor = provinceBorderColor;
-                lineRenderer.endColor = provinceBorderColor;
-            }
-        }
-        
         // Trigger event for territory border update
         if (previousOwner != nation)
         {
             OnOwnershipChanged?.Invoke(this, previousOwner, nation);
-//            Debug.Log($"Province at ({x},{y}) ownership changed from {(previousOwner?.nationName ?? "none")} to {(nation?.nationName ?? "none")}");
         }
     }
     

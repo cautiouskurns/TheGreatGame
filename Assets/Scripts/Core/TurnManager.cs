@@ -14,6 +14,11 @@ public class TurnManager : MonoBehaviour
     public delegate void TurnChanged(Nation nation);
     public event TurnChanged OnTurnChanged;
     
+    void Awake()
+    {
+        ServiceLocator.Register<TurnManager>(this);
+    }
+    
     void Start()
     {
         // Find all nations if not assigned
@@ -30,11 +35,13 @@ public class TurnManager : MonoBehaviour
     {
         Debug.Log($"Starting turn for {CurrentNation.nationName}");
         
-        // Process settlements before regenerating resources
-        ProcessAllSettlements();
-        
-        // Regenerate resources in all provinces
-        RegenerateAllProvinces();
+        // Process economic systems using the dedicated manager
+        EconomyManager economyManager = ServiceLocator.Get<EconomyManager>();
+        if (economyManager != null)
+        {
+            economyManager.ProcessSettlements();
+            economyManager.ProcessProvinceResources();
+        }
         
         // If AI, execute its turn
         if (!IsPlayerTurn)
