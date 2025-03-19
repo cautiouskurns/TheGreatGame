@@ -76,7 +76,7 @@ public class Settlement : MonoBehaviour
         transform.position = province.transform.position + new Vector3(0, 0, -0.1f);
         
         // Link the settlement to the province
-        province.settlement = this;
+        //province.settlement = this;
         
         UpdateVisuals();
         
